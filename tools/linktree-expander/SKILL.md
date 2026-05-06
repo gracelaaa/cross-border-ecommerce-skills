@@ -70,7 +70,7 @@ Linktree currently does NOT use Cloudflare (verified 2026-05-06). Plain `request
 
 | Mode | Frequency | Handling |
 |---|---|---|
-| Handle deleted (404) | ~5% | row marked `status=fetch_failed` (e.g. `knixwear` failed in pilot) |
+| Handle deleted (404) | ~5% | row marked `status=fetch_failed` (e.g. one handle in the 45-handle pilot returned 404 — likely renamed or deleted) |
 | `__NEXT_DATA__` not in HTML (page variant) | <1% | row marked `status=parse_failed`, manual fallback |
 | Account locked / private | rare | same as 404 |
 | Outbound URLs hidden behind Linktree's redirect (`linktr.ee/r/...`) | rare | follow with `requests.head()` to resolve final URL |
