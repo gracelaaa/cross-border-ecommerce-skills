@@ -1,6 +1,6 @@
 # Cross-Border E-Commerce AI Skills
 
-**39 AI-powered skill templates for cross-border e-commerce — from brand strategy to Amazon operations to DTC growth to overseas-buyer prospecting.**
+**40 AI-powered skill templates for cross-border e-commerce — from brand strategy to Amazon operations to DTC growth to overseas-buyer prospecting + earned-media press discovery.**
 
 Compatible with Claude Code (`~/.claude/commands/`), Google Antigravity (`SKILL.md`), and any AI IDE with skill/prompt support.
 
@@ -12,13 +12,15 @@ Compatible with Claude Code (`~/.claude/commands/`), Google Antigravity (`SKILL.
 
 ### What is this?
 
-A collection of **39 AI agent skills** (structured prompt templates) that automate the entire cross-border e-commerce workflow — brand strategy, market research, product selection, listing optimization, advertising, DTC site operations, social media, influencer marketing, **and overseas-buyer outbound prospecting**.
+A collection of **40 AI agent skills** (structured prompt templates) that automate the entire cross-border e-commerce workflow — brand strategy, market research, product selection, listing optimization, advertising, DTC site operations, social media, influencer marketing, **overseas-buyer outbound prospecting**, and **earned-media press discovery**.
 
 Two formats:
 - **Single-file skills** (37) — one `.md` file each, drop into your AI IDE's skill directory.
-- **Multi-file skill packages** (2, all under `outbound-prospecting/`) — `SKILL.md` + `references/` + `templates/` (incl. Python scripts and CSV trackers). Point your AI IDE at the package directory.
+- **Multi-file skill packages** (3, all under `outbound-prospecting/`) — `SKILL.md` + `references/` + `templates/` (incl. Python scripts and CSV trackers). Point your AI IDE at the package directory.
 
-### Skill Map (39 skills across 10 chains)
+Plus **4 standalone tools** under `tools/` (Python utilities used by skills, also runnable independently): `backlink-kol-extractor`, `trustpilot`, `linktree-expander`, `contact-extractor`.
+
+### Skill Map (40 skills across 10 chains)
 
 ```
                         ┌─────────────────────────────────────┐
@@ -129,22 +131,28 @@ Two formats:
 | [brand-gtm-launch](brand-strategy/brand-gtm-launch.md) | New product GTM launch: 7-step framework, timeline, channel coordination |
 | [offline-retail-us](brand-strategy/offline-retail-us.md) | US offline retail: 8-tier channel analysis, readiness assessment, cost model |
 
-### Outbound Prospecting (2 skills) — NEW in v3.2
+### Outbound Prospecting (3 skills) — v3.4 adds press discovery
 
-End-to-end pipelines for finding overseas B2B decision-makers and converting them into ready-to-message lead sheets. Each skill is a multi-file package with `SKILL.md` + dork libraries + country/role references + outreach playbooks + Python helpers.
+End-to-end pipelines for finding overseas B2B decision-makers, KOLs, and journalists, then converting them into ready-to-message lead sheets. Each skill is a multi-file package with `SKILL.md` + scripts + references + templates.
 
 | Skill | What it does |
 |-------|-------------|
 | [google-whatsapp-prospecting](outbound-prospecting/google-whatsapp-prospecting/SKILL.md) | Google-dork → WhatsApp lead pipeline. 15+ search formulas (mobile-prefix narrowed), 30+ countries with B2B-platform / time-zone / compliance flags, full GDPR-CASL-CCPA-UWG compliance reference, multi-language outreach playbook (EN/ES/PT/FR/AR), SerpAPI batch script + `wa.me` validator. |
 | [linkedin-prospecting](outbound-prospecting/linkedin-prospecting/SKILL.md) | Google/Bing/Yandex/Wayback reverse-search of LinkedIn → enrichment via Apollo/Snov/Hunter/Lusha/Wiza → 4-touch outreach (CR → DM → follow-up → channel-switch). 50+ localized role keywords across 8 languages, LinkedIn ToS + quota reference, 12 DM templates across 5 archetypes (incl. voice-note opener), reply-handling matrix. |
+| [media-press-discovery](outbound-prospecting/media-press-discovery/SKILL.md) — **NEW v3.4** | Muckrack-anchored journalist DB pipeline. 5 scripts (`discover_journalists` / `find_articles` / `guess_emails` / `score_and_export` / `merge_partitions`) + shared `_fetcher.py` with 4 backends (requests / remote-chrome / apify / html-dir for Cloudflare-protected pages). Multi-machine partition-merge workflow. Outputs ranked `pitch_db.csv` with journalist contacts + last topical coverage. |
 
 Sister skills — same 4-stage shape (Search → Enrich → Outreach → Compliance), different channels. Designed to run in parallel for the same lead set.
 
 ### Tools (standalone utilities)
 
+Standalone Python utilities under `tools/`. Each is a multi-file package with own `SKILL.md` + `scripts/` + `references/` + `templates/`. Used by skills above conditionally; also runnable independently.
+
 | Tool | What it does | Used by |
 |------|-------------|---------|
 | [backlink-kol-extractor](tools/backlink-kol-extractor/SKILL.md) | Extract KOL / media / affiliate prospects from Semrush competitor backlink xlsx data — 3-step methodology (domain pattern → cross-competitor validation → social handle extraction) | `influencer-marketing` (Step 2.5), `dsite-seo-playbook` (Step 4.6) — both conditionally activated when Semrush data is provided |
+| [trustpilot](tools/trustpilot/) — **rebuilt v3.4** | Selenium-based Trustpilot review scraper with chained-proxy rotation, AI sentiment + topic analysis, multi-language. v3.4 rebuild: modern data-* attribute selectors (replaces 110-line sibling-XPath fallback chain), desktop-UA pin (Trustpilot serves snippet-only DOM to mobile UA), `--cutoff_date` arg, `--skip_ai` mode, redacted hardcoded proxy creds (env-var loading) | `trustpilot-voc-quick`, `trustpilot-voc-deep` |
+| [linktree-expander](tools/linktree-expander/SKILL.md) — **NEW v3.4** | Batch-enrich Linktree handles into per-creator profiles via `__NEXT_DATA__` JSON parsing. Extracts IG / TikTok / YouTube / Substack / Twitter / podcast handles + bio + outbound link categorization + handle-match-scored personal_site (with `NON_PERSONAL_HOSTS` blocklist for shorteners / aggregators / docs / scheduling) | KOL discovery pipelines downstream of `backlink-kol-extractor` |
+| [contact-extractor](tools/contact-extractor/SKILL.md) — **NEW v3.4** | Multi-source contact email extraction with confidence tiering. Sources: personal_site `/about` `/contact` `/press` paths (mailto/text) + YouTube Data API v3 description + Apple Podcasts RSS owner + email pattern guess (with `--verify` SMTP MX probe / Hunter.io). Outputs ranked `contact_email_1..3` + `confidence` (high / medium / low / none) | KOL outreach prep, post `linktree-expander` or `media-press-discovery` |
 
 See [tools/README.md](tools/README.md) for standalone usage.
 
@@ -254,6 +262,13 @@ cp -r cross-border-ecommerce-skills/tools/backlink-kol-extractor ~/.claude/skill
 ---
 
 ## Changelog
+
+### v3.4 (2026-05-06)
+- **New `outbound-prospecting/media-press-discovery/`** multi-file skill — Muckrack-anchored journalist DB pipeline. 5 scripts (`discover_journalists` / `find_articles` / `guess_emails` / `score_and_export` / `merge_partitions`) + shared `_fetcher.py` with 4 backends (`requests` / `remote-chrome` / `apify` / `html-dir`) for Cloudflare-protected pages. Multi-machine partition-merge workflow.
+- **New `tools/linktree-expander/`** — batch-enrich Linktree handles via `__NEXT_DATA__` JSON parsing. Handle-match scoring for `personal_site` + `NON_PERSONAL_HOSTS` blocklist (30+ shorteners / aggregators / docs / scheduling tools). Verified 44/45 ok on a 45-handle pilot.
+- **New `tools/contact-extractor/`** — multi-source email extraction with confidence tiering. Sources: `personal_site` `/about` `/contact` `/press` (mailto / text) + YouTube Data API v3 description + Apple Podcasts RSS owner + email pattern guess. Optional `--verify` SMTP MX probe / Hunter.io. Outputs ranked `contact_email_1..3` + `confidence` (high / medium / low / none).
+- **`tools/trustpilot/` rebuilt**: modern data-* attribute selectors (replaces 110-line sibling-XPath fallback chain that broke on Trustpilot's 2026 DOM update), desktop-UA pin (Trustpilot serves snippet-only DOM to mobile UAs — major silent failure mode), `?sort=recency` URL flag (relevance widget served snippet-only DOM for some brands), `--cutoff_date YYYY-MM-DD` arg (efficient time-bounded scrapes), `--skip_ai` mode bypasses broken `generate_report()` signature, redacted hardcoded SOCKS5 proxy creds in `config.py` (now env-var loaded).
+- Total: **40 skills** across 10 chains. Tools count: 4 (was 1).
 
 ### v3.3 (2026-04-27)
 - **New entry-orchestrator skill** `dsite-seo-diagnostic` (single-file, under `brand-strategy/`) — for live-site SEO traffic-drop diagnostics + restart roadmap.
