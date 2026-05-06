@@ -51,9 +51,14 @@ def extract_brand_name(url):
 def get_random_headers():
     """生成随机的HTTP请求头"""
     try:
-        ua = UserAgent()
+        # 锁死桌面 UA — Trustpilot 对移动端 UA 服务"snippet-only"DOM（无 country / rating / title / 完整 body）
+        # fake_useragent 2.x 支持 platforms='pc'
+        ua = UserAgent(platforms=['pc'])
         user_agent = ua.random
-    except:
+        # 兜底：万一仍命中移动 UA（库版本差异），强制走预定义列表
+        if any(t in user_agent for t in ('iPhone', 'iPad', 'Android', 'Mobile')):
+            raise ValueError("mobile UA leaked, fall through")
+    except Exception:
         # 如果fake_useragent库不可用，使用预定义的UA列表
         user_agents = [
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36",
@@ -98,7 +103,7 @@ def get_random_headers():
     
     return headers
 
-def scrape_trustpilot_reviews(url, safe_brand_name, base_save_dir, thread_identifier="local_ip", selenium_wire_options=None, pages_to_scrape_for_test=None, start_page=1, end_page=None):
+def scrape_trustpilot_reviews(url, safe_brand_name, base_save_dir, thread_identifier="local_ip", selenium_wire_options=None, pages_to_scrape_for_test=None, start_page=1, end_page=None, cutoff_date=None):
     """从Trustpilot爬取评论. Now supports proxies via selenium-wire and saves to thread-specific subdir."""
     all_reviews = []
     all_page_files = []
@@ -182,7 +187,7 @@ def scrape_trustpilot_reviews(url, safe_brand_name, base_save_dir, thread_identi
     pages_scraped_count = 0 # For the test limit
 
     try:
-        first_page_url = f"{base_url}?languages=all" # Always try to get all languages
+        first_page_url = f"{base_url}?languages=all&sort=recency" # languages=all for cross-region; sort=recency to get full review DOM (vs snippet preview) and chronological order
         driver.get(first_page_url)
         print(f"[{thread_identifier}] Accessed page 1: {first_page_url}")
         
@@ -209,7 +214,7 @@ def scrape_trustpilot_reviews(url, safe_brand_name, base_save_dir, thread_identi
                 break
 
             # 构建当前页面URL
-            current_url_to_load = f"{base_url}?languages=all&page={page_num}" if page_num > 1 else first_page_url
+            current_url_to_load = f"{base_url}?languages=all&sort=recency&page={page_num}" if page_num > 1 else first_page_url
             
             if page_num > 1 or start_page > 1: # 如果不是按顺序的第一页，需要显式导航
                 print(f"[{thread_identifier}] Navigating to page {page_num}: {current_url_to_load}")
@@ -262,112 +267,75 @@ def scrape_trustpilot_reviews(url, safe_brand_name, base_save_dir, thread_identi
             
             for container in review_containers:
                 try:
+                    # Username — Trustpilot 2026 DOM: span[data-consumer-name-typography='true']
                     try:
-                        username_element = container.find_element(By.CSS_SELECTOR, "span[data-consumer-name-typography='true']")
-                        username = username_element.text.strip()
+                        username = container.find_element(
+                            By.CSS_SELECTOR, "[data-consumer-name-typography='true']"
+                        ).get_attribute("textContent").strip()
                     except NoSuchElementException:
-                        try:
-                            username_element = container.find_element(By.CSS_SELECTOR, ".styles_consumerName__f2g3T")
-                            username = username_element.text.strip()
-                        except NoSuchElementException:
-                            try:
-                                username_element = container.find_element(By.XPATH, "//div[contains(@class, 'consumerName')]/span | //a[contains(@name, 'consumer-profile')]/span")
-                                username = username_element.text.strip()
-                            except NoSuchElementException:
-                                username = "Unknown"
-                                username_element = None #确保username_element在失败时为None
-                    
-                    country = "Unknown"
-                    if username_element: # Ensure username_element was successfully found
-                        try:
-                            # Attempt 1: Check for a sibling div that contains details (country, review count)
-                            # This is a common structure: <span>Username</span><div><span>Country</span>...</div>
-                            details_container_div = username_element.find_element(By.XPATH, "following-sibling::div[1]")
-                            try:
-                                # Option 1a: Country is the text of the first span within this sibling div
-                                country_span = details_container_div.find_element(By.XPATH, "./span[1]")
-                                country_text = country_span.text.strip()
-                                if country_text and len(country_text) == 2 and country_text.isupper():
-                                    country = country_text
-                            except NoSuchElementException:
-                                # Option 1b: If no span, or span doesn't fit, check if the div's text itself starts with a country code
-                                details_text = details_container_div.text.strip()
-                                if details_text:
-                                    # Regex to find two uppercase letters at the beginning of the string,
-                                    # possibly followed by common separators like '•', space, or newline.
-                                    match = re.match(r"([A-Z]{2})(?:\s*•|\s+|$)", details_text)
-                                    if match:
-                                        country = match.group(1)
-                        except NoSuchElementException:
-                            # Attempt 2: If no sibling div as described, check for an immediate sibling span
-                            # This structure: <span>Username</span><span>Country</span>
-                            try:
-                                country_sibling_span = username_element.find_element(By.XPATH, "following-sibling::span[1]")
-                                country_text = country_sibling_span.text.strip()
-                                if country_text and len(country_text) == 2 and country_text.isupper():
-                                    country = country_text
-                            except NoSuchElementException:
-                                pass # Failed to find country via common relative XPaths from username_element
+                        username = "Unknown"
 
-                    # Fallback logic if relative XPaths failed or username_element was not found
-                    if country == "Unknown":
-                        try:
-                            # Fallback 1: Try to find a known consumer details wrapper class and use extract_country_code
-                            # Using the class selector that was present in earlier versions or a common pattern
-                            details_wrapper_element = container.find_element(By.CSS_SELECTOR, ".styles_consumerDetailsWrapper__LSBJS, div[class*='consumerDetails'], div[class*='ConsumerDetails']")
-                            user_info_text = details_wrapper_element.text
-                            extracted = extract_country_code(user_info_text, username if username != "Unknown" else "")
-                            if extracted and extracted != "Unknown":
-                                country = extracted
-                        except NoSuchElementException:
-                            # Fallback 2: Last resort, use extract_country_code on the whole review container's text
-                            try:
-                                container_full_text = container.text
-                                extracted_fallback = extract_country_code(container_full_text, username if username != "Unknown" else "")
-                                if extracted_fallback and extracted_fallback != "Unknown":
-                                    country = extracted_fallback
-                            except Exception:
-                                pass # Final attempt (regex on full text) failed
-                        except Exception: 
-                            # Catch errors from extract_country_code or other issues in Fallback 1
-                            pass
-                    
+                    # Country — Trustpilot 2026 DOM has direct attribute (no more sibling-XPath gymnastics)
                     try:
-                        time_element = container.find_element(By.CSS_SELECTOR, "time[datetime]")
-                        review_date = time_element.get_attribute("datetime").split("T")[0]
+                        country = container.find_element(
+                            By.CSS_SELECTOR, "[data-consumer-country-typography='true']"
+                        ).get_attribute("textContent").strip()
+                        if not (country and len(country) == 2 and country.isupper()):
+                            country = "Unknown"
+                    except NoSuchElementException:
+                        country = "Unknown"
+
+                    # Date — ISO from <time datetime="...">
+                    try:
+                        review_date = container.find_element(
+                            By.CSS_SELECTOR, "time[datetime]"
+                        ).get_attribute("datetime").split("T")[0]
                     except NoSuchElementException:
                         review_date = "Unknown"
-                    
+
+                    # Review title (new field)
                     try:
-                        review_element = container.find_element(By.CSS_SELECTOR, "p[data-service-review-text-typography='true']")
-                        review_content = review_element.text.strip()
+                        review_title = container.find_element(
+                            By.CSS_SELECTOR, "[data-service-review-title-typography='true']"
+                        ).get_attribute("textContent").strip()
                     except NoSuchElementException:
-                        review_content = ""
-                    
-                    try:
-                        star_img = container.find_element(By.CSS_SELECTOR, ".star-rating_starRating__sdbkn img")
-                        alt_text = star_img.get_attribute("alt")
-                        rating_match = re.search(r'Rated (\d+) out of 5', alt_text)
-                        rating = rating_match.group(1) if rating_match else "Unknown"
-                    except NoSuchElementException:
+                        review_title = ""
+
+                    # Review body — use textContent (not .text) to avoid lazy-render visibility quirks.
+                    # Trustpilot has two layouts: full (data-service-review-text-typography) and snippet
+                    # (data-relevant-review-text-typography, used for ~5 "featured" reviews per page even
+                    # when sort=recency). Snippet is truncated with "See more" but still useful.
+                    review_content = ""
+                    for sel in ("[data-service-review-text-typography='true']",
+                                "[data-relevant-review-text-typography='true']"):
                         try:
-                            rating_container = container.find_element(By.CSS_SELECTOR, "div[data-service-review-rating]")
-                            rating = rating_container.get_attribute("data-service-review-rating")
+                            review_content = container.find_element(By.CSS_SELECTOR, sel).get_attribute("textContent").strip()
+                            if review_content:
+                                break
                         except NoSuchElementException:
-                            rating = "Unknown"
-                    
+                            continue
+
+                    # Rating — direct attribute on div[data-service-review-rating]
+                    try:
+                        rating = container.find_element(
+                            By.CSS_SELECTOR, "[data-service-review-rating]"
+                        ).get_attribute("data-service-review-rating")
+                    except NoSuchElementException:
+                        rating = "Unknown"
+
                     review_data = {
                         'username': username,
                         'country': country,
                         'rating': rating,
                         'date': review_date,
+                        'title': review_title,
                         'review': review_content,
-                        'scraped_by': thread_identifier # Add who scraped it
+                        'scraped_by': thread_identifier
                     }
-                    
+
                     page_reviews.append(review_data)
                     all_reviews.append(review_data)
-                    
+
                 except Exception as e:
                     print(f"[{thread_identifier}] Error extracting review: {str(e)[:100]}...")
             
@@ -382,6 +350,12 @@ def scrape_trustpilot_reviews(url, safe_brand_name, base_save_dir, thread_identi
             if len(page_reviews) == 0 and page_num > 1: # Stop if a non-first page has no reviews
                 print(f"[{thread_identifier}] No reviews found on page {page_num} (and it's not the first page). Stopping.")
                 break
+
+            if cutoff_date and page_reviews:
+                valid_dates = [r['date'] for r in page_reviews if r['date'] != "Unknown"]
+                if valid_dates and min(valid_dates) < cutoff_date:
+                    print(f"[{thread_identifier}] Reached cutoff_date {cutoff_date} on page {page_num} (oldest review on page: {min(valid_dates)}). Stopping.")
+                    break
 
             page_num += 1
                 

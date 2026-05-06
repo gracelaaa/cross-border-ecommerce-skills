@@ -22,20 +22,21 @@ from chain_proxy import create_chain_selenium_wire_options, create_seleniumwire_
 # Global flag to enable/disable AI analysis (can be set via arg or kept as a constant)
 AI_ANALYSIS_ENABLED = True # Set to False to skip AI part globally, or use command-line arg
 
-def run_scraper_thread(url, safe_brand_name, base_save_dir, thread_identifier, selenium_wire_options=None, pages_to_scrape_for_test=None, start_page=1, end_page=None):
+def run_scraper_thread(url, safe_brand_name, base_save_dir, thread_identifier, selenium_wire_options=None, pages_to_scrape_for_test=None, start_page=1, end_page=None, cutoff_date=None):
     """Worker function for each scraper thread."""
-    print(f"线程 {thread_identifier}: 开始抓取任务，范围：第{start_page}页到第{end_page if end_page else '最后'}页")
+    print(f"线程 {thread_identifier}: 开始抓取任务，范围：第{start_page}页到第{end_page if end_page else '最后'}页，cutoff_date={cutoff_date}")
     try:
         # Each thread calls scrape_trustpilot_reviews, which now handles its own sub-directory creation
         reviews_df, page_files = scrape_trustpilot_reviews(
-            url=url, 
-            safe_brand_name=safe_brand_name, 
-            base_save_dir=base_save_dir, 
-            thread_identifier=thread_identifier, 
+            url=url,
+            safe_brand_name=safe_brand_name,
+            base_save_dir=base_save_dir,
+            thread_identifier=thread_identifier,
             selenium_wire_options=selenium_wire_options,
             pages_to_scrape_for_test=pages_to_scrape_for_test,
             start_page=start_page,
-            end_page=end_page
+            end_page=end_page,
+            cutoff_date=cutoff_date
         )
         print(f"线程 {thread_identifier}: 抓取完成。找到 {len(reviews_df)} 条评论。")
         return reviews_df, page_files, thread_identifier # Return results for potential aggregation
@@ -198,6 +199,7 @@ def main():
     parser.add_argument("--use_proxy1", action='store_true', help="使用第一个代理 (93.89.220.26)")
     parser.add_argument("--use_proxy2", action='store_true', help="使用第二个代理 (149.18.52.92)")
     parser.add_argument("--skip_merge", action='store_true', help="爬取完成后跳过合并步骤")
+    parser.add_argument("--cutoff_date", type=str, default=None, help="只抓 ≥ 该日期的评论，YYYY-MM-DD（如 2025-11-06）。Trustpilot 按时间倒序，达到截止后停止")
 
     args = parser.parse_args()
     url = args.url
@@ -209,7 +211,8 @@ def main():
     use_proxy1 = args.use_proxy1
     use_proxy2 = args.use_proxy2
     skip_merge = args.skip_merge
-    
+    cutoff_date_arg = args.cutoff_date
+
     # 设置代理模式
     import config  # 确保在使用config之前导入
     
@@ -305,9 +308,10 @@ def main():
                 "base_save_dir": main_output_dir,
                 "thread_identifier": "local_ip",
                 "selenium_wire_options": None,
-                "pages_to_scrape_for_test": pages_to_scrape_for_test_arg
+                "pages_to_scrape_for_test": pages_to_scrape_for_test_arg,
+                "cutoff_date": cutoff_date_arg
             })
-            
+
             # 如果是V2Ray模式，直接使用V2Ray代理
             if config.PROXY_MODE == "v2ray":
                 v2ray_options = create_chain_selenium_wire_options("127.0.0.1:10808:none:none", base_proxy_type)
@@ -318,7 +322,8 @@ def main():
                         "base_save_dir": main_output_dir,
                         "thread_identifier": f"v2ray_{base_proxy_type}",
                         "selenium_wire_options": v2ray_options,
-                        "pages_to_scrape_for_test": pages_to_scrape_for_test_arg
+                        "pages_to_scrape_for_test": pages_to_scrape_for_test_arg,
+                        "cutoff_date": cutoff_date_arg
                     })
                     print(f"已添加V2Ray任务")
 
@@ -330,10 +335,10 @@ def main():
             for i, proxy_str in enumerate(selected_proxies, 1):
                 if valid_proxies_for_test >= max_proxy_threads_for_test:
                     break # 达到测试限制
-                
+
                 print(f"正在配置远程代理 {i}: {proxy_str}")
                 chain_options = create_chain_selenium_wire_options(proxy_str, base_proxy_type)
-                
+
                 if chain_options:
                     proxy_identifier = f"proxy_{i}_{base_proxy_type}"
                     scraper_tasks.append({
@@ -342,7 +347,8 @@ def main():
                         "base_save_dir": main_output_dir,
                         "thread_identifier": proxy_identifier,
                         "selenium_wire_options": chain_options,
-                        "pages_to_scrape_for_test": pages_to_scrape_for_test_arg
+                        "pages_to_scrape_for_test": pages_to_scrape_for_test_arg,
+                        "cutoff_date": cutoff_date_arg
                     })
                     valid_proxies_for_test += 1
                     print(f"已添加代理任务: {proxy_identifier}")
@@ -453,10 +459,12 @@ def main():
 
         report_path = generate_report(brand_name, final_reviews_df, main_output_dir, ai_analysis_results, url)
         print(f"Generated report: {report_path}")
-    elif not final_reviews_df.empty: # AI is disabled but reviews exist
-        print("AI analysis skipped. Generating report without AI insights.")
-        report_path = generate_report(brand_name, final_reviews_df, main_output_dir, {}, url) # Pass empty AI results
-        print(f"Generated report without AI analysis: {report_path}")
+    elif not final_reviews_df.empty:
+        # AI disabled — skip report generation entirely. Raw CSV is already saved.
+        # generate_report() current signature requires 6 dir args (rating/country/word/time/sentiment/topic),
+        # which only the AI pipeline produces. For pure scrape mode, the merged CSV in main_output_dir
+        # is the deliverable.
+        print(f"--skip_ai 模式：跳过 report 生成。原始 CSV 已保存于 {main_output_dir}")
     else:
         print("No reviews scraped, skipping report generation.")
 
