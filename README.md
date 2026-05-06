@@ -160,7 +160,7 @@ See [tools/README.md](tools/README.md) for standalone usage.
 
 ### Key Features
 
-- **39 Skills, 10 Chains** — Complete coverage from brand strategy to daily operations to overseas-buyer outbound
+- **40 Skills, 10 Chains** — Complete coverage from brand strategy to daily operations to overseas-buyer outbound to earned-media press discovery
 - **Data Verification Layer** — Every skill includes mandatory verification; estimates are explicitly flagged with ⚠️
 - **Chart Visualization** — 21 skills auto-generate charts (radar, bar, waterfall, scatter, funnel, etc.) via AntV API
 - **Semrush Integration** — Brand strategy skills auto-scan local Semrush xlsx/PDF data as high-confidence source
@@ -204,29 +204,31 @@ Key requirements: long context (8K+ input), strong instruction following, Chines
 
 ### 这是什么？
 
-一套 **39 个跨境电商 AI 技能模板**，覆盖品牌战略→选品→调研→文案→广告→独立站→社媒→红人→线下渠道→海外开发的全流程自动化。
+一套 **40 个跨境电商 AI 技能模板**，覆盖品牌战略→选品→调研→文案→广告→独立站→社媒→红人→线下渠道→海外开发→媒体公关全流程自动化。
 
 两种格式：
 - **单文件技能（37 个）** — 一个 `.md` 文件，放入 AI IDE 技能目录即可使用
-- **多文件技能包（2 个，全部在 `outbound-prospecting/`）** — `SKILL.md` + `references/` + `templates/`（含 Python 脚本和 CSV 跟踪表），将整个目录指向 AI IDE
+- **多文件技能包（3 个，全部在 `outbound-prospecting/`）** — `SKILL.md` + `references/` + `templates/`（含 Python 脚本和 CSV 跟踪表），将整个目录指向 AI IDE
 
-### 技能矩阵（39 个技能，10 条链路）
+外加 **4 个独立工具** 在 `tools/`（Python 工具，被 skill 调用也可独立使用）：`backlink-kol-extractor` / `trustpilot` / `linktree-expander` / `contact-extractor`。
+
+### 技能矩阵（40 个技能，10 条链路）
 
 | 链路 | 数量 | 技能 |
 |------|------|------|
 | **品牌战略链** | 10 | 市场扫描 → 赛道假设 → 深度验证 → 品牌战略 → IMC框架 → 年度规划 → 预算管控 → 知识库 → A/B对比 → 图表可视化 |
 | **Amazon 运营链** | 14 | 选品 → 筛选 → 调研 → IP排查 → 供应商 → 关键词 → 文案 → 主图 → A+ → 合规 → 复查 → 广告架构 → 周报 → 诊断 |
-| **独立站流量** | 4 | **SEO 全链路诊断（NEW v3.3）** → SEO全链路规划 → SEM广告 → 转化率优化 |
+| **独立站流量** | 4 | SEO 全链路诊断（NEW v3.3）→ SEO全链路规划 → SEM广告 → 转化率优化 |
 | **社媒与内容** | 3 | TikTok增长 → YouTube运营 → 内容日历 |
 | **VOC 评论分析** | 2 | Trustpilot 快速扫描 → Trustpilot 深度分析（爬虫+情感+LDA+AI 归纳） |
 | **红人与用户** | 2 | 红人营销 → 用户生命周期 |
 | **GTM 执行** | 1 | 新品上市规划 |
 | **线下渠道** | 1 | 美国线下零售 |
-| **海外开发（NEW v3.2）** | 2 | Google→WhatsApp 反查开发（15+ 公式 + 30+ 国家 + 多语言话术 + 合规手册）→ Google→LinkedIn 反查开发（CR + 12 DM 模板 + 5 种 archetype + 8 语言职位词 + LinkedIn ToS 限额表） |
+| **海外开发与媒体公关（NEW v3.2 + v3.4）** | 3 | Google→WhatsApp 反查开发 → Google→LinkedIn 反查开发 → **媒体公关发现（NEW v3.4，Muckrack-anchored journalist DB pipeline，5 脚本 + Cloudflare-aware 4 后端 fetcher + 多机分片）** |
 
 ### 核心特色
 
-- **39 技能 × 10 链路** — 从战略到执行到海外开发全覆盖
+- **40 技能 × 10 链路 + 4 独立工具** — 从战略到执行到海外开发到媒体公关全覆盖
 - **数据验证层** — 每个技能内置强制验证，推测数据标 ⚠️
 - **图表可视化** — 21 个技能自动生成图表（雷达/柱状/瀑布/散点/漏斗等），调用 AntV API
 - **Semrush 集成** — 品牌战略技能自动扫描本地 Semrush 数据
