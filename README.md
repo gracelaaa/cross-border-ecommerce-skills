@@ -1,6 +1,6 @@
 # Cross-Border E-Commerce AI Skills
 
-**40 AI-powered skill templates for cross-border e-commerce — from brand strategy to Amazon operations to DTC growth to overseas-buyer prospecting + earned-media press discovery.**
+**41 AI-powered skill templates for cross-border e-commerce — from brand strategy to Amazon operations to DTC growth to overseas-buyer prospecting + earned-media press discovery + Reddit pre-purchase VOC.**
 
 Compatible with Claude Code (`~/.claude/commands/`), Google Antigravity (`SKILL.md`), and any AI IDE with skill/prompt support.
 
@@ -12,15 +12,15 @@ Compatible with Claude Code (`~/.claude/commands/`), Google Antigravity (`SKILL.
 
 ### What is this?
 
-A collection of **40 AI agent skills** (structured prompt templates) that automate the entire cross-border e-commerce workflow — brand strategy, market research, product selection, listing optimization, advertising, DTC site operations, social media, influencer marketing, **overseas-buyer outbound prospecting**, and **earned-media press discovery**.
+A collection of **41 AI agent skills** (structured prompt templates) that automate the entire cross-border e-commerce workflow — brand strategy, market research, product selection, listing optimization, advertising, DTC site operations, social media, influencer marketing, **overseas-buyer outbound prospecting**, **earned-media press discovery**, and **Reddit pre-purchase VOC**.
 
 Two formats:
 - **Single-file skills** (37) — one `.md` file each, drop into your AI IDE's skill directory.
-- **Multi-file skill packages** (3, all under `outbound-prospecting/`) — `SKILL.md` + `references/` + `templates/` (incl. Python scripts and CSV trackers). Point your AI IDE at the package directory.
+- **Multi-file skill packages** (4, under `outbound-prospecting/` and `voc-tools/`) — `SKILL.md` + `references/` + `templates/` (incl. Python scripts and CSV trackers). Point your AI IDE at the package directory.
 
 Plus **4 standalone tools** under `tools/` (Python utilities used by skills, also runnable independently): `backlink-kol-extractor`, `trustpilot`, `linktree-expander`, `contact-extractor`.
 
-### Skill Map (40 skills across 10 chains)
+### Skill Map (41 skills across 10 chains)
 
 ```
                         ┌─────────────────────────────────────┐
@@ -45,12 +45,12 @@ Plus **4 standalone tools** under `tools/` (Python utilities used by skills, als
   │ Supplier         │   └──────────────────┘   │ User Lifecycle   │
   │ Keywords         │                          └──────────────────┘
   │ Listing Copy     │   ┌──────────────────┐   ┌──────────────────┐
-  │ Main Image       │   │ Offline (1)      │   │ VOC Tools (2)    │
+  │ Main Image       │   │ Offline (1)      │   │ VOC Tools (3)    │
   │ A+ Content       │   │                  │   │                  │
-  │ Compliance       │   │ US Retail        │   │ Trustpilot Quick │
-  │ Pre-Launch       │   └──────────────────┘   │ Trustpilot Deep  │
-  │ Ad Architecture  │                          └──────────────────┘
-  │ Weekly Ad Review │
+  │ Compliance       │   │ US Retail        │   │ Reddit VOC (NEW) │
+  │ Pre-Launch       │   └──────────────────┘   │ Trustpilot Quick │
+  │ Ad Architecture  │                          │ Trustpilot Deep  │
+  │ Weekly Ad Review │                          └──────────────────┘
   │ Ad Diagnosis     │
   └──────────────────┘
 ```
@@ -110,10 +110,13 @@ Plus **4 standalone tools** under `tools/` (Python utilities used by skills, als
 | [youtube-channel-ops](brand-strategy/youtube-channel-ops.md) | YouTube channel operations: content strategy, SEO, monetization |
 | [social-content-calendar](brand-strategy/social-content-calendar.md) | Social media content calendar: multi-platform scheduling, content pillars |
 
-### VOC & Review Analysis (2 skills) — NEW in v3.1
+### VOC & Review Analysis (3 skills) — NEW v3.5 adds pre-purchase VOC
+
+VOC tools split by decision stage. Reddit / Quora capture **pre-purchase** intent (still-deciding users), while Trustpilot / Amazon Review capture **post-purchase** experience (already-bought users). Use them together for full decision-funnel coverage.
 
 | Skill | What it does |
 |-------|-------------|
+| [reddit-voc](voc-tools/reddit-voc/SKILL.md) — **NEW v3.5** | Multi-file package for **pre-purchase** Reddit VOC mining. 5-step playbook (find subs across 4 dimensions → filter Top + 6 post-flair → 6-axis post teardown → insight-to-action mapping → optional 2D positioning matrix). References: 4-dimension community framework / Reddit slang dictionary (BIFL / YMMV / AITA / DAE / etc.) / 6-class post taxonomy with business-action mapping / 3 real listing+ad rewrite cases / functional-importance × satisfaction matrix. CSV templates for community map, post analysis, insight-action map. Pairs with `/trustpilot-voc-deep` for post-purchase view. |
 | [trustpilot-voc-quick](brand-strategy/trustpilot-voc-quick.md) | 5-min WebFetch scan: overall rating, star distribution, recent review summaries. Ideal for brand scanning Step 0 or competitor comparison |
 | [trustpilot-voc-deep](brand-strategy/trustpilot-voc-deep.md) | Full pipeline (15-40 min): Selenium scraper with proxy rotation + sentiment analysis + LDA topic modeling + AI-powered deep insights. Uses `tools/trustpilot/` Python toolkit with **AntV visualization** for report-style consistency |
 
@@ -160,7 +163,7 @@ See [tools/README.md](tools/README.md) for standalone usage.
 
 ### Key Features
 
-- **40 Skills, 10 Chains** — Complete coverage from brand strategy to daily operations to overseas-buyer outbound to earned-media press discovery
+- **41 Skills, 10 Chains** — Complete coverage from brand strategy to daily operations to overseas-buyer outbound to earned-media press discovery to pre-purchase Reddit VOC
 - **Data Verification Layer** — Every skill includes mandatory verification; estimates are explicitly flagged with ⚠️
 - **Chart Visualization** — 21 skills auto-generate charts (radar, bar, waterfall, scatter, funnel, etc.) via AntV API
 - **Semrush Integration** — Brand strategy skills auto-scan local Semrush xlsx/PDF data as high-confidence source
@@ -182,6 +185,8 @@ cp cross-border-ecommerce-skills/amazon/*.md ~/.claude/commands/
 # Multi-file skill packages → ~/.claude/skills/ (one directory per skill)
 cp -r cross-border-ecommerce-skills/outbound-prospecting/google-whatsapp-prospecting ~/.claude/skills/
 cp -r cross-border-ecommerce-skills/outbound-prospecting/linkedin-prospecting ~/.claude/skills/
+cp -r cross-border-ecommerce-skills/outbound-prospecting/media-press-discovery ~/.claude/skills/
+cp -r cross-border-ecommerce-skills/voc-tools/reddit-voc ~/.claude/skills/
 cp -r cross-border-ecommerce-skills/tools/backlink-kol-extractor ~/.claude/skills/
 ```
 
@@ -204,15 +209,15 @@ Key requirements: long context (8K+ input), strong instruction following, Chines
 
 ### 这是什么？
 
-一套 **40 个跨境电商 AI 技能模板**，覆盖品牌战略→选品→调研→文案→广告→独立站→社媒→红人→线下渠道→海外开发→媒体公关全流程自动化。
+一套 **41 个跨境电商 AI 技能模板**，覆盖品牌战略→选品→调研→文案→广告→独立站→社媒→红人→线下渠道→海外开发→媒体公关→**购买前 Reddit VOC** 全流程自动化。
 
 两种格式：
 - **单文件技能（37 个）** — 一个 `.md` 文件，放入 AI IDE 技能目录即可使用
-- **多文件技能包（3 个，全部在 `outbound-prospecting/`）** — `SKILL.md` + `references/` + `templates/`（含 Python 脚本和 CSV 跟踪表），将整个目录指向 AI IDE
+- **多文件技能包（4 个，分布在 `outbound-prospecting/` 和 `voc-tools/`）** — `SKILL.md` + `references/` + `templates/`（含 Python 脚本和 CSV 跟踪表），将整个目录指向 AI IDE
 
 外加 **4 个独立工具** 在 `tools/`（Python 工具，被 skill 调用也可独立使用）：`backlink-kol-extractor` / `trustpilot` / `linktree-expander` / `contact-extractor`。
 
-### 技能矩阵（40 个技能，10 条链路）
+### 技能矩阵（41 个技能，10 条链路）
 
 | 链路 | 数量 | 技能 |
 |------|------|------|
@@ -220,7 +225,7 @@ Key requirements: long context (8K+ input), strong instruction following, Chines
 | **Amazon 运营链** | 14 | 选品 → 筛选 → 调研 → IP排查 → 供应商 → 关键词 → 文案 → 主图 → A+ → 合规 → 复查 → 广告架构 → 周报 → 诊断 |
 | **独立站流量** | 4 | SEO 全链路诊断（NEW v3.3）→ SEO全链路规划 → SEM广告 → 转化率优化 |
 | **社媒与内容** | 3 | TikTok增长 → YouTube运营 → 内容日历 |
-| **VOC 评论分析** | 2 | Trustpilot 快速扫描 → Trustpilot 深度分析（爬虫+情感+LDA+AI 归纳） |
+| **VOC 评论分析** | 3 | **Reddit VOC（NEW v3.5，购买前用户洞察 / 4 维度找社区 / 6 类帖子分类 / 黑话词典 / 矩阵定位）** → Trustpilot 快速扫描 → Trustpilot 深度分析（爬虫+情感+LDA+AI 归纳） |
 | **红人与用户** | 2 | 红人营销 → 用户生命周期 |
 | **GTM 执行** | 1 | 新品上市规划 |
 | **线下渠道** | 1 | 美国线下零售 |
@@ -228,7 +233,7 @@ Key requirements: long context (8K+ input), strong instruction following, Chines
 
 ### 核心特色
 
-- **40 技能 × 10 链路 + 4 独立工具** — 从战略到执行到海外开发到媒体公关全覆盖
+- **41 技能 × 10 链路 + 4 独立工具** — 从战略到执行到海外开发到媒体公关到购买前 Reddit VOC 全覆盖
 - **数据验证层** — 每个技能内置强制验证，推测数据标 ⚠️
 - **图表可视化** — 21 个技能自动生成图表（雷达/柱状/瀑布/散点/漏斗等），调用 AntV API
 - **Semrush 集成** — 品牌战略技能自动扫描本地 Semrush 数据
@@ -250,6 +255,8 @@ cp cross-border-ecommerce-skills/amazon/*.md ~/.claude/commands/
 # 多文件技能包 → ~/.claude/skills/（每个技能一个目录）
 cp -r cross-border-ecommerce-skills/outbound-prospecting/google-whatsapp-prospecting ~/.claude/skills/
 cp -r cross-border-ecommerce-skills/outbound-prospecting/linkedin-prospecting ~/.claude/skills/
+cp -r cross-border-ecommerce-skills/outbound-prospecting/media-press-discovery ~/.claude/skills/
+cp -r cross-border-ecommerce-skills/voc-tools/reddit-voc ~/.claude/skills/
 cp -r cross-border-ecommerce-skills/tools/backlink-kol-extractor ~/.claude/skills/
 ```
 
@@ -264,6 +271,17 @@ cp -r cross-border-ecommerce-skills/tools/backlink-kol-extractor ~/.claude/skill
 ---
 
 ## Changelog
+
+### v3.5 (2026-05-19)
+- **New `voc-tools/reddit-voc/`** multi-file skill — pre-purchase VOC mining from Reddit (complements post-purchase `trustpilot-voc-*`). Methodology:
+  - **4-dimension community discovery** — category/brand subs (D1) + lifestyle/demographic subs (D2) + problem/help subs (D3) + values/ideology subs (D4). Single-dimension findings are not credible; cross-dimension validation required.
+  - **6-class post taxonomy** with business-action mapping — Recommendation / Rant / Question / Comparison / Daily / Top-All-Time. Each class maps to a primary output (Listing copy / differentiation positioning / FAQ + IPQ / vs-matrix / content calendar / brand positioning) and a secondary output.
+  - **Reddit slang dictionary** — BIFL / YMMV / AITA / DAE / TIL / PSA / etc., grouped by VOC signal type (values / emotion intensity / moral-judgement / product-evaluation / community-platform / category-specific). Reading slang wrong = misreading user emotion and values.
+  - **3 listing+ad rewrite cases** — "7 pieces to clean" listing rewrite, "earbuds don't fall out" TikTok hook, "never scoop never clean" brand tagline. All sourced from real Reddit high-upvote threads, demonstrating *user-language > marketer-language*.
+  - **2D positioning matrix** (functional importance × satisfaction) — find the bottom-right "wants but unmet" quadrant. Includes simplified 30-min version and full 2-3-day data-driven version. Compatible with `tools/trustpilot/` `topic_modeling.py` + `sentiment.py` for auto-labeling at scale.
+  - 3 CSV templates: `community-map.csv` (8-15 subs across dimensions) / `post-analysis.csv` (30-80 post teardowns) / `insight-action-map.csv` (insight → action with P0/P1/P2 priority + owner + status).
+  - Pairs with: `/trustpilot-voc-deep` (post-purchase), `/amazon-market-research` (post-purchase), `/brand-market-scan` (pre-strategy VOC input), `/amazon-listing-copywriter` (user-language input), `/tiktok-growth` (ad-hook input).
+- Total: **41 skills** across 10 chains. Multi-file packages: 4 (was 3).
 
 ### v3.4 (2026-05-06)
 - **New `outbound-prospecting/media-press-discovery/`** multi-file skill — Muckrack-anchored journalist DB pipeline. 5 scripts (`discover_journalists` / `find_articles` / `guess_emails` / `score_and_export` / `merge_partitions`) + shared `_fetcher.py` with 4 backends (`requests` / `remote-chrome` / `apify` / `html-dir`) for Cloudflare-protected pages. Multi-machine partition-merge workflow.
