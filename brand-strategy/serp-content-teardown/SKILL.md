@@ -12,7 +12,7 @@ Everything runs offline against files you already have, except one network step:
 ## Quick Start
 
 ```bash
-cd tools/serp-content-teardown
+cd brand-strategy/serp-content-teardown
 
 # One-shot: runs all 8 steps in order, writes every artifact to --out-dir.
 python3 scripts/run_all.py \

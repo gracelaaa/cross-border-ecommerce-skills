@@ -1,6 +1,6 @@
 # Cross-Border E-Commerce AI Skills
 
-**41 AI-powered skill templates for cross-border e-commerce — from brand strategy to Amazon operations to DTC growth to overseas-buyer prospecting + earned-media press discovery + Reddit pre-purchase VOC.**
+**42 AI-powered skill templates for cross-border e-commerce — from brand strategy to Amazon operations to DTC growth to overseas-buyer prospecting + earned-media press discovery + Reddit pre-purchase VOC.**
 
 Compatible with Claude Code (`~/.claude/commands/`), Google Antigravity (`SKILL.md`), and any AI IDE with skill/prompt support.
 
@@ -12,15 +12,15 @@ Compatible with Claude Code (`~/.claude/commands/`), Google Antigravity (`SKILL.
 
 ### What is this?
 
-A collection of **41 AI agent skills** (structured prompt templates) that automate the entire cross-border e-commerce workflow — brand strategy, market research, product selection, listing optimization, advertising, DTC site operations, social media, influencer marketing, **overseas-buyer outbound prospecting**, **earned-media press discovery**, and **Reddit pre-purchase VOC**.
+A collection of **42 AI agent skills** (structured prompt templates) that automate the entire cross-border e-commerce workflow — brand strategy, market research, product selection, listing optimization, advertising, DTC site operations, social media, influencer marketing, **overseas-buyer outbound prospecting**, **earned-media press discovery**, and **Reddit pre-purchase VOC**.
 
 Two formats:
 - **Single-file skills** (37) — one `.md` file each, drop into your AI IDE's skill directory.
-- **Multi-file skill packages** (4, under `outbound-prospecting/` and `voc-tools/`) — `SKILL.md` + `references/` + `templates/` (incl. Python scripts and CSV trackers). Point your AI IDE at the package directory.
+- **Multi-file skill packages** (5, under `brand-strategy/`, `outbound-prospecting/`, and `voc-tools/`) — `SKILL.md` + `references/` + `templates/` (incl. Python scripts and CSV trackers). Point your AI IDE at the package directory.
 
-Plus **5 standalone tools** under `tools/` (Python utilities used by skills, also runnable independently): `backlink-kol-extractor`, `trustpilot`, `linktree-expander`, `contact-extractor`, `serp-content-teardown`.
+Plus **4 standalone tools** under `tools/` (Python utilities used by skills, also runnable independently): `backlink-kol-extractor`, `trustpilot`, `linktree-expander`, `contact-extractor`.
 
-### Skill Map (41 skills across 10 chains)
+### Skill Map (42 skills across 10 chains)
 
 ```
                         ┌─────────────────────────────────────┐
@@ -36,7 +36,7 @@ Plus **5 standalone tools** under `tools/` (Python utilities used by skills, als
        │                                         │
        ▼                                         ▼
   ┌──────────────────┐   ┌──────────────────┐   ┌──────────────────┐
-  │ Amazon Chain (14) │   │ DTC Site (4)     │   │ Social & KOL (5) │
+  │ Amazon Chain (14) │   │ DTC Site (5)     │   │ Social & KOL (5) │
   │                  │   │                  │   │                  │
   │ Selection        │   │ SEO Diagnostic   │   │ TikTok Growth    │
   │ Shortlist        │   │ SEO Playbook     │   │ YouTube Ops      │
@@ -93,7 +93,7 @@ Plus **5 standalone tools** under `tools/` (Python utilities used by skills, als
 | Ads | [amazon-weekly-ad-review](amazon/amazon-weekly-ad-review.md) | Weekly ad review: ACoS/TACoS, Search Terms, action list |
 | Ads | [amazon-ad-diagnosis](amazon/amazon-ad-diagnosis.md) | Existing product diagnosis: 4-stage optimization pipeline |
 
-### DTC Site & Traffic (4 skills)
+### DTC Site & Traffic (5 skills)
 
 | Skill | What it does |
 |-------|-------------|
@@ -101,6 +101,7 @@ Plus **5 standalone tools** under `tools/` (Python utilities used by skills, als
 | [dsite-seo-playbook](brand-strategy/dsite-seo-playbook.md) | Full SEO playbook: technical audit, keyword strategy, content plan, Core Web Vitals |
 | [dsite-sem-ads](brand-strategy/dsite-sem-ads.md) | SEM & paid ads: 10-platform comparison, AIPL funnel, budget allocation |
 | [dsite-conversion-ux](brand-strategy/dsite-conversion-ux.md) | Conversion rate optimization: 6-module CRO audit, UX best practices |
+| [serp-content-teardown](brand-strategy/serp-content-teardown/SKILL.md) — **NEW v3.6** | Multi-file skill: deterministic (no-LLM) SERP/content reverse-engineering from local Semrush xlsx + competitor HTML. Parses serp_urls + broad-match, curl-fetches top competitor articles (html5lib void-tag-safe), computes per-article structure → **8 article archetypes** + opening/closing patterns, then keyword distribution + core keywords, backlink/authority thresholds (Page AS / Ref.Domains / Backlinks) + weak-link winners, AI-Overview (GEO) saturation + schema readiness, on-page SEO. Output: per-topic content blueprint (which archetype / word / H2 / schema / FAQ / keyword / authority / GEO posture). Pairs with `backlink-kol-extractor` (links) + `structured-data-buildout` (schema). |
 
 ### Social Media & Content (3 skills)
 
@@ -156,7 +157,6 @@ Standalone Python utilities under `tools/`. Each is a multi-file package with ow
 | [trustpilot](tools/trustpilot/) — **rebuilt v3.4** | Selenium-based Trustpilot review scraper with chained-proxy rotation, AI sentiment + topic analysis, multi-language. v3.4 rebuild: modern data-* attribute selectors (replaces 110-line sibling-XPath fallback chain), desktop-UA pin (Trustpilot serves snippet-only DOM to mobile UA), `--cutoff_date` arg, `--skip_ai` mode, redacted hardcoded proxy creds (env-var loading) | `trustpilot-voc-quick`, `trustpilot-voc-deep` |
 | [linktree-expander](tools/linktree-expander/SKILL.md) — **NEW v3.4** | Batch-enrich Linktree handles into per-creator profiles via `__NEXT_DATA__` JSON parsing. Extracts IG / TikTok / YouTube / Substack / Twitter / podcast handles + bio + outbound link categorization + handle-match-scored personal_site (with `NON_PERSONAL_HOSTS` blocklist for shorteners / aggregators / docs / scheduling) | KOL discovery pipelines downstream of `backlink-kol-extractor` |
 | [contact-extractor](tools/contact-extractor/SKILL.md) — **NEW v3.4** | Multi-source contact email extraction with confidence tiering. Sources: personal_site `/about` `/contact` `/press` paths (mailto/text) + YouTube Data API v3 description + Apple Podcasts RSS owner + email pattern guess (with `--verify` SMTP MX probe / Hunter.io). Outputs ranked `contact_email_1..3` + `confidence` (high / medium / low / none) | KOL outreach prep, post `linktree-expander` or `media-press-discovery` |
-| [serp-content-teardown](tools/serp-content-teardown/SKILL.md) — **NEW v3.6** | Deterministic (no-LLM) SERP/content reverse-engineering from local Semrush xlsx + competitor HTML. 8 scripts → ranked blog-URL pool, curl-fetched competitor articles (html5lib void-tag-safe), per-article structure metrics, **8 article archetypes** + opening/closing patterns, keyword distribution + core keywords, backlink/authority thresholds (Page AS / Ref.Domains / Backlinks) + weak-link winners, AI-Overview (GEO) saturation + schema readiness, on-page SEO. Output: per-topic content-strategy report (which archetype / word / H2 / schema / FAQ / keyword / authority / GEO posture). | `dsite-seo-playbook`, `brand-market-scan`; pairs with `backlink-kol-extractor` (links) + `structured-data-buildout` (implements the schema it measures) |
 
 See [tools/README.md](tools/README.md) for standalone usage.
 
@@ -164,7 +164,7 @@ See [tools/README.md](tools/README.md) for standalone usage.
 
 ### Key Features
 
-- **41 Skills, 10 Chains** — Complete coverage from brand strategy to daily operations to overseas-buyer outbound to earned-media press discovery to pre-purchase Reddit VOC
+- **42 Skills, 10 Chains** — Complete coverage from brand strategy to daily operations to overseas-buyer outbound to earned-media press discovery to pre-purchase Reddit VOC
 - **Data Verification Layer** — Every skill includes mandatory verification; estimates are explicitly flagged with ⚠️
 - **Chart Visualization** — 21 skills auto-generate charts (radar, bar, waterfall, scatter, funnel, etc.) via AntV API
 - **Semrush Integration** — Brand strategy skills auto-scan local Semrush xlsx/PDF data as high-confidence source
@@ -188,6 +188,7 @@ cp -r cross-border-ecommerce-skills/outbound-prospecting/google-whatsapp-prospec
 cp -r cross-border-ecommerce-skills/outbound-prospecting/linkedin-prospecting ~/.claude/skills/
 cp -r cross-border-ecommerce-skills/outbound-prospecting/media-press-discovery ~/.claude/skills/
 cp -r cross-border-ecommerce-skills/voc-tools/reddit-voc ~/.claude/skills/
+cp -r cross-border-ecommerce-skills/brand-strategy/serp-content-teardown ~/.claude/skills/
 cp -r cross-border-ecommerce-skills/tools/backlink-kol-extractor ~/.claude/skills/
 ```
 
@@ -210,21 +211,21 @@ Key requirements: long context (8K+ input), strong instruction following, Chines
 
 ### 这是什么？
 
-一套 **41 个跨境电商 AI 技能模板**，覆盖品牌战略→选品→调研→文案→广告→独立站→社媒→红人→线下渠道→海外开发→媒体公关→**购买前 Reddit VOC** 全流程自动化。
+一套 **42 个跨境电商 AI 技能模板**，覆盖品牌战略→选品→调研→文案→广告→独立站→社媒→红人→线下渠道→海外开发→媒体公关→**购买前 Reddit VOC** 全流程自动化。
 
 两种格式：
 - **单文件技能（37 个）** — 一个 `.md` 文件，放入 AI IDE 技能目录即可使用
-- **多文件技能包（4 个，分布在 `outbound-prospecting/` 和 `voc-tools/`）** — `SKILL.md` + `references/` + `templates/`（含 Python 脚本和 CSV 跟踪表），将整个目录指向 AI IDE
+- **多文件技能包（5 个，分布在 `brand-strategy/`、`outbound-prospecting/` 和 `voc-tools/`）** — `SKILL.md` + `references/` + `templates/`（含 Python 脚本和 CSV 跟踪表），将整个目录指向 AI IDE
 
-外加 **5 个独立工具** 在 `tools/`（Python 工具，被 skill 调用也可独立使用）：`backlink-kol-extractor` / `trustpilot` / `linktree-expander` / `contact-extractor` / `serp-content-teardown`。
+外加 **4 个独立工具** 在 `tools/`（Python 工具，被 skill 调用也可独立使用）：`backlink-kol-extractor` / `trustpilot` / `linktree-expander` / `contact-extractor`。
 
-### 技能矩阵（41 个技能，10 条链路）
+### 技能矩阵（42 个技能，10 条链路）
 
 | 链路 | 数量 | 技能 |
 |------|------|------|
 | **品牌战略链** | 10 | 市场扫描 → 赛道假设 → 深度验证 → 品牌战略 → IMC框架 → 年度规划 → 预算管控 → 知识库 → A/B对比 → 图表可视化 |
 | **Amazon 运营链** | 14 | 选品 → 筛选 → 调研 → IP排查 → 供应商 → 关键词 → 文案 → 主图 → A+ → 合规 → 复查 → 广告架构 → 周报 → 诊断 |
-| **独立站流量** | 4 | SEO 全链路诊断（NEW v3.3）→ SEO全链路规划 → SEM广告 → 转化率优化 |
+| **独立站流量** | 5 | SEO 全链路诊断（NEW v3.3）→ SEO全链路规划 → SEM广告 → 转化率优化 → **SERP 内容拆解（NEW v3.6，竞品文章结构 + 关键词 + 反链 + GEO 一起拆）** |
 | **社媒与内容** | 3 | TikTok增长 → YouTube运营 → 内容日历 |
 | **VOC 评论分析** | 3 | **Reddit VOC（NEW v3.5，购买前用户洞察 / 4 维度找社区 / 6 类帖子分类 / 黑话词典 / 矩阵定位）** → Trustpilot 快速扫描 → Trustpilot 深度分析（爬虫+情感+LDA+AI 归纳） |
 | **红人与用户** | 2 | 红人营销 → 用户生命周期 |
@@ -234,7 +235,7 @@ Key requirements: long context (8K+ input), strong instruction following, Chines
 
 ### 核心特色
 
-- **41 技能 × 10 链路 + 5 独立工具** — 从战略到执行到海外开发到媒体公关到购买前 Reddit VOC 全覆盖
+- **42 技能 × 10 链路 + 4 独立工具** — 从战略到执行到海外开发到媒体公关到购买前 Reddit VOC 全覆盖
 - **数据验证层** — 每个技能内置强制验证，推测数据标 ⚠️
 - **图表可视化** — 21 个技能自动生成图表（雷达/柱状/瀑布/散点/漏斗等），调用 AntV API
 - **Semrush 集成** — 品牌战略技能自动扫描本地 Semrush 数据
@@ -258,6 +259,7 @@ cp -r cross-border-ecommerce-skills/outbound-prospecting/google-whatsapp-prospec
 cp -r cross-border-ecommerce-skills/outbound-prospecting/linkedin-prospecting ~/.claude/skills/
 cp -r cross-border-ecommerce-skills/outbound-prospecting/media-press-discovery ~/.claude/skills/
 cp -r cross-border-ecommerce-skills/voc-tools/reddit-voc ~/.claude/skills/
+cp -r cross-border-ecommerce-skills/brand-strategy/serp-content-teardown ~/.claude/skills/
 cp -r cross-border-ecommerce-skills/tools/backlink-kol-extractor ~/.claude/skills/
 ```
 
@@ -274,12 +276,12 @@ cp -r cross-border-ecommerce-skills/tools/backlink-kol-extractor ~/.claude/skill
 ## Changelog
 
 ### v3.6 (2026-05-26)
-- **New `tools/serp-content-teardown/`** multi-file tool — deterministic (no-LLM) SERP/content reverse-engineering from local Semrush xlsx + competitor HTML. 8 scripts (`parse_serp` → `fetch_competitors` → `analyze_structure` → `classify_archetypes` → `keyword_analysis` → `backlink_analysis` → `geo_analysis` → `onpage_analysis`) + `run_all` orchestrator + shared `_config` (YAML topic-clusters / JSON brand-names).
+- **New `brand-strategy/serp-content-teardown/`** multi-file skill (DTC Site & Traffic chain) — deterministic (no-LLM) SERP/content reverse-engineering from local Semrush xlsx + competitor HTML. 8 scripts (`parse_serp` → `fetch_competitors` → `analyze_structure` → `classify_archetypes` → `keyword_analysis` → `backlink_analysis` → `geo_analysis` → `onpage_analysis`) + `run_all` orchestrator + shared `_config` (YAML topic-clusters / JSON brand-names).
   - **Structure teardown**: parses Semrush `serp_urls` → ranked blog/info-article URL pool, fetches the top competitor articles (`curl` + browser UA, `html5lib` to survive Shopify void-tag body-nesting), computes per-article metrics (words, H1/H2/H3, lists, tables, JSON-LD `@type` set, author byline, dates, brand-mentions/1k, authority outlinks), classifies each into **8 article archetypes** (DEFINITION_QA / TUTORIAL_HOWTO / LISTICLE_TIPS / COMPARISON_VS / PILLAR_GUIDE / MYTH_DEBUNK / PRODUCT_MICROGUIDE / NEWS_EDITORIAL) + opening/closing patterns + cross-sample winning bands.
   - **SEO/GEO/keyword/backlink layers**: keyword distribution + core keywords + difficulty-cliff (from `broad-match`); backlink/authority thresholds (Page AS / Ref.Domains / Backlinks) + "weak-link winners"; AI-Overview (GEO) saturation per topic + AI-cited domains + schema readiness of cited vs non-cited; on-page SEO (title/meta/H1/canonical/internal-links/SERP-features).
   - **Output**: JSON artifacts + a per-topic content-strategy report (which archetype / word / H2 / schema / FAQ / opening-closing to use, which keywords to target, what authority is realistically needed, what GEO posture to take). Worked example under `examples/`: waterproof / stainless-steel jewelry niche (25 competitor articles).
-  - **Honest scope**: covers the ~20-30% code-side of what wins; content quality + domain age + backlinks are the other ~70-80%. Backlink data is page-level Authority Score, not domain DR. AI-Overview citation capture is sparse. Red line: `curl`-only fetch, no paid APIs, no live AI-citation probing. Pairs with `backlink-kol-extractor` (links) and `structured-data-buildout` (implements the schema this tool measures).
-- Tools count: 5 (was 4).
+  - **Honest scope**: covers the ~20-30% code-side of what wins; content quality + domain age + backlinks are the other ~70-80%. Backlink data is page-level Authority Score, not domain DR. AI-Overview citation capture is sparse. Red line: `curl`-only fetch, no paid APIs, no live AI-citation probing. Pairs with `backlink-kol-extractor` (links) and `structured-data-buildout` (implements the schema this skill measures).
+- Total: **42 skills** across 10 chains. Multi-file packages: 5 (was 4).
 
 ### v3.5 (2026-05-19)
 - **New `voc-tools/reddit-voc/`** multi-file skill — pre-purchase VOC mining from Reddit (complements post-purchase `trustpilot-voc-*`). Methodology:

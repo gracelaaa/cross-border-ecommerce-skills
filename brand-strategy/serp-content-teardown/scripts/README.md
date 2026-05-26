@@ -18,7 +18,7 @@ display names) are externalized to two small config files.
 ## Install
 
 ```bash
-cd tools/serp-content-teardown/scripts
+cd brand-strategy/serp-content-teardown/scripts
 python3 -m pip install -r requirements.txt
 ```
 
