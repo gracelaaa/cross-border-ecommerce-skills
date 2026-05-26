@@ -234,7 +234,7 @@ Key requirements: long context (8K+ input), strong instruction following, Chines
 
 ### 核心特色
 
-- **41 技能 × 10 链路 + 4 独立工具** — 从战略到执行到海外开发到媒体公关到购买前 Reddit VOC 全覆盖
+- **41 技能 × 10 链路 + 5 独立工具** — 从战略到执行到海外开发到媒体公关到购买前 Reddit VOC 全覆盖
 - **数据验证层** — 每个技能内置强制验证，推测数据标 ⚠️
 - **图表可视化** — 21 个技能自动生成图表（雷达/柱状/瀑布/散点/漏斗等），调用 AntV API
 - **Semrush 集成** — 品牌战略技能自动扫描本地 Semrush 数据
