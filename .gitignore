@@ -1,2 +1,6 @@
 __pycache__/
 *.pyc
+*.db
+test_*.py
+pipeline/data/
+pipeline/debug_*.py
