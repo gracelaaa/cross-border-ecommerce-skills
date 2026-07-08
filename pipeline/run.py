@@ -38,7 +38,7 @@ COLLECTOR_MAP = {
     "trustpilot":    ("trustpilot.TrustpilotCollector", "Trustpilot"),
     "producthunt":   ("producthunt.ProductHuntCollector", "Product Hunt"),
     "amz_dataset":   ("amz_dataset.AmazonDatasetCollector", "Amazon Dataset"),
-    "reddit":        ("reddit.RedditCollector", "Reddit (via BrowserAct)"),
+    "reddit":        ("reddit.RedditCollector", "Reddit (via Apify)"),
 }
 
 
@@ -109,7 +109,26 @@ def main():
     parser.add_argument("--only", nargs="+", help="Run only these collectors")
     parser.add_argument("--skip", nargs="+", help="Skip these collectors")
     parser.add_argument("--stats", action="store_true", help="Show database stats only")
+    parser.add_argument("--daily", action="store_true",
+                        help="Reddit daily mode: past-24h window, newest-first sort")
+    parser.add_argument("--reddit-tbs", default=None,
+                        help="Override Reddit Google time window (e.g. qdr:d, qdr:w)")
+    parser.add_argument("--deep", action="store_true",
+                        help="Reddit: deep-fetch each post's .json for real created_utc/upvotes")
+    parser.add_argument("--fetch-mode", choices=["auto", "browser", "http"], default=None,
+                        help="Reddit: fetch mode — auto (default), browser (BrowserAct only), http (direct)")
     args = parser.parse_args()
+
+    # Apply Reddit daily / override knobs BEFORE collectors are instantiated.
+    if args.daily:
+        config.REDDIT_TBS = "qdr:d"
+        config.REDDIT_SORT = "sbd:1"
+    if args.reddit_tbs:
+        config.REDDIT_TBS = args.reddit_tbs
+    if args.deep:
+        config.REDDIT_DEEP_FETCH = True
+    if args.fetch_mode:
+        config.REDDIT_FETCH_MODE = args.fetch_mode
 
     db = Database(config.DB_PATH, config.SCHEMA_PATH)
 

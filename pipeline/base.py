@@ -43,7 +43,7 @@ class BaseCollector(ABC):
             "author": "",
             "score": 0,
             "score_label": "",
-            "posted_at": datetime.now().isoformat(),
+            "posted_at": None,          # None = unknown — don't fake timestamps
             "keywords": [],
             "category": "",
             "geo": "US",
