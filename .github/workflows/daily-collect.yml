@@ -11,8 +11,8 @@ on:
 jobs:
   collect:
     runs-on: ubuntu-latest
-    # 设置整体超时
-    timeout-minutes: 20
+    # 9 sub × ~2.5min/image-pull ≈ 22min + export buffer → 35min 上限
+    timeout-minutes: 35
 
     steps:
       - name: Checkout code
