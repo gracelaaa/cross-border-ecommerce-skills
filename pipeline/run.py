@@ -39,6 +39,7 @@ COLLECTOR_MAP = {
     "producthunt":   ("producthunt.ProductHuntCollector", "Product Hunt"),
     "amz_dataset":   ("amz_dataset.AmazonDatasetCollector", "Amazon Dataset"),
     "reddit":        ("reddit.RedditCollector", "Reddit (via Apify)"),
+    "reddit_broad":  ("broad_reddit.BroadRedditCollector", "Reddit Broad (all subs)"),
 }
 
 

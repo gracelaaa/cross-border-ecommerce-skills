@@ -82,6 +82,17 @@ REDDIT_PER_SUBREDDIT = 25
 # Delay between Apify Actor calls (avoids Reddit RSS rate limits)
 REDDIT_DELAY_BETWEEN_CALLS = 30
 
+# Broad Reddit search (wide-net across all subs)
+BROAD_MAX_PER_QUERY = 100
+BROAD_QUERIES = [
+    '"looking for" product OR tool OR service OR app',
+    '"alternative to" OR "instead of" OR "replacement for" product OR service',
+    '"I wish there was" OR "I hate when" product OR tool',
+    'amazon FBA product idea OR trending OR private label OR sourcing',
+    'pet OR dog OR cat OR garden OR home product OR supply OR solution',
+    'software OR app OR SaaS OR tool recommendation',
+]
+
 # Reddit search query templates (Google site:reddit.com)
 # ── Two-tier strategy: broad discovery + targeted e-commerce ──────────
 # Tier 1: e-commerce focused subreddits (high signal, low noise)

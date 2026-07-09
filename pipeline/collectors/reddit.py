@@ -69,10 +69,13 @@ class RedditCollector(BaseCollector):
                 time.sleep(self.delay_between_calls)
 
             # Single-subreddit Actor input
+            # V7 fix: includeComments=True to get selfText + top comment
             run_input = {
                 "startUrls": [{"url": f"https://www.reddit.com/r/{subreddit}/new/"}],
                 "maxPostsPerSource": self.per_sub,
-                "maxCommentsPerPost": 1,
+                "includeComments": True,
+                "maxCommentsPerPost": 2,
+                "commentDepth": 1,
             }
 
             # Call Actor with retry (Run is pydantic BaseModel, not dict)
