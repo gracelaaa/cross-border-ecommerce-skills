@@ -7,16 +7,30 @@ on:
     # 每天凌晨 2:00 宽网搜索
     - cron: '0 18 * * *'
   workflow_dispatch:
+    inputs:
+      collector:
+        description: 'Which collector to run'
+        required: false
+        default: 'both'
+        type: choice
+        options:
+          - both
+          - reddit
+          - reddit_broad
 
 # GITHUB_TOKEN needs write access to push to data branch
 permissions:
   contents: write
 
 jobs:
+  # Determine which collector(s) to run based on trigger
   collect:
     runs-on: ubuntu-latest
-    # 9 sub × ~2.5min/image-pull ≈ 22min + export buffer → 35min 上限
     timeout-minutes: 35
+    strategy:
+      fail-fast: false
+      matrix:
+        collector: [reddit, reddit_broad]
 
     steps:
       - name: Checkout code
@@ -35,27 +49,52 @@ jobs:
           pip install -r pipeline/requirements.txt
           pip install apify-client
 
+      - name: Decide whether to run this collector
+        id: should_run
+        env:
+          COLLECTOR: ${{ matrix.collector }}
+          INPUT_COLLECTOR: ${{ github.event.inputs.collector }}
+        run: |
+          HOUR=$(date -u +%H)
+          EVENT="${{ github.event_name }}"
+          INPUT="${{ github.event.inputs.collector }}"
+
+          # Default: don't run
+          RUN="false"
+
+          if [ "$EVENT" = "schedule" ]; then
+            # Scheduled: match by hour
+            if [ "$HOUR" = "01" ] && [ "$COLLECTOR" = "reddit" ]; then
+              RUN="true"
+            elif [ "$HOUR" = "18" ] && [ "$COLLECTOR" = "reddit_broad" ]; then
+              RUN="true"
+            fi
+          elif [ "$EVENT" = "workflow_dispatch" ]; then
+            # Manual: respect input choice
+            if [ "$INPUT" = "both" ] || [ "$INPUT" = "$COLLECTOR" ] || [ -z "$INPUT" ]; then
+              RUN="true"
+            fi
+          fi
+
+          echo "run=$RUN" >> $GITHUB_OUTPUT
+          echo "Will run $COLLECTOR: $RUN (event=$EVENT hour=$HOUR input=$INPUT)"
+
       - name: Collect demand signals
+        if: steps.should_run.outputs.run == 'true'
         env:
           APIFY_API_TOKEN: ${{ secrets.APIFY_API_TOKEN }}
         run: |
           cd pipeline
-          # 根据触发时间选择 collector（精准 vs 宽网）
-          HOUR=$(date -u +%H)
-          if [ "$HOUR" = "01" ]; then
+          if [ "${{ matrix.collector }}" = "reddit" ]; then
             echo "📌 Running targeted 9-sub collection..."
             python run.py --only reddit --daily
-          elif [ "$HOUR" = "18" ]; then
-            echo "🌐 Running broad search collection..."
-            python run.py --only reddit_broad
           else
-            # 手动触发：两个都跑，但串行且快速
-            echo "🚀 Running both collectors (quick mode)..."
-            python run.py --only reddit
+            echo "🌐 Running broad search collection..."
             python run.py --only reddit_broad
           fi
 
       - name: Export data to JSON/CSV
+        if: steps.should_run.outputs.run == 'true'
         run: |
           python -c "
           import sqlite3, json, csv, os
@@ -83,10 +122,24 @@ jobs:
           "
 
       - name: Push data to data branch
+        if: steps.should_run.outputs.run == 'true'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+          # Fetch existing data branch to avoid clobbering the other job's push
+          git fetch origin data 2>/dev/null || true
           git checkout data 2>/dev/null || git checkout -b data
+          # Merge any existing data from the other parallel job
+          git merge origin/data --no-edit 2>/dev/null || true
           git add data/
-          git commit -m "data: daily update $(date -u +%Y-%m-%dT%H:%M:%SZ)" || echo "No changes"
-          git push origin data --force
+          git commit -m "data: ${{ matrix.collector }} update $(date -u +%Y-%m-%dT%H:%M:%SZ)" || echo "No changes"
+          # Retry push in case the other job is pushing simultaneously
+          for i in 1 2 3; do
+            if git push origin data --force-with-lease; then
+              break
+            fi
+            echo "Push failed, retrying in 10s..."
+            sleep 10
+            git fetch origin data
+            git merge origin/data --no-edit 2>/dev/null || true
+          done
