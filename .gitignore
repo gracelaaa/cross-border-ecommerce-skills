@@ -4,3 +4,5 @@ __pycache__/
 test_*.py
 pipeline/data/
 pipeline/debug_*.py
+pipeline/demand_signals.json
+pipeline/demand_signals.csv
