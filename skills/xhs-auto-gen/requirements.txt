@@ -1,0 +1,7 @@
+# XHS Auto Gen Pipeline Dependencies
+# Python 3.9+ standard library only - no external packages needed
+# urllib, json, re, os, sys, datetime, pathlib are all stdlib
+
+# Optional: for better text processing (uncomment if needed)
+# requests>=2.28.0
+# markdown>=3.4.0
