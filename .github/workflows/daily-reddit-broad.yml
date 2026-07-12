@@ -29,6 +29,48 @@ jobs:
           pip install -r pipeline/requirements.txt
           pip install apify-client
 
+      - name: Restore existing data from data branch
+        run: |
+          git fetch origin data 2>/dev/null || true
+          python -c "
+          import json, sqlite3, os, subprocess
+          try:
+              subprocess.run(['git', 'show', 'origin/data:data/demand_signals.json'],
+                              stdout=open('/tmp/existing.json','w'), check=True)
+              with open('/tmp/existing.json') as f:
+                  existing = json.load(f)
+              print(f'Found {len(existing)} existing signals on data branch')
+          except Exception as e:
+              print(f'No existing data (first run?): {e}')
+              existing = []
+          if existing:
+              db = sqlite3.connect('pipeline/demand_signals.db')
+              with open('pipeline/schema.sql') as f:
+                  db.executescript(f.read())
+              for row in existing:
+                  for col in ['keywords', 'metadata']:
+                      if isinstance(row.get(col), str):
+                          pass
+                      elif row.get(col):
+                          row[col] = json.dumps(row[col], ensure_ascii=False)
+                  try:
+                      db.execute('''INSERT OR IGNORE INTO demand_signals
+                          (source, signal_type, title, content, url, author,
+                           score, score_label, posted_at, keywords, category, geo, metadata)
+                          VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)''',
+                          (row.get('source'), row.get('signal_type'), row.get('title'),
+                           row.get('content'), row.get('url'), row.get('author'),
+                           row.get('score'), row.get('score_label'), row.get('posted_at'),
+                           row.get('keywords'), row.get('category'), row.get('geo'),
+                           row.get('metadata')))
+                  except Exception:
+                      pass
+              db.commit()
+              cnt = db.execute('SELECT COUNT(*) FROM demand_signals').fetchone()[0]
+              db.close()
+              print(f'Imported {cnt} signals into SQLite')
+          "
+
       - name: Collect reddit_broad signals
         env:
           APIFY_API_TOKEN: ${{ secrets.APIFY_API_TOKEN }}
