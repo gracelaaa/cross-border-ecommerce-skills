@@ -39,3 +39,48 @@ jobs:
           git add output/xhs-notes/
           git diff --staged --quiet || git commit -m "🤖 Auto-generate XHS notes $(date +%Y-%m-%d)"
           git push
+
+      - name: Send email notification
+        env:
+          SMTP_HOST: ${{ secrets.SMTP_HOST }}
+          SMTP_PORT: ${{ secrets.SMTP_PORT }}
+          SMTP_USER: ${{ secrets.SMTP_USER }}
+          SMTP_PASS: ${{ secrets.SMTP_PASS }}
+          TO_EMAIL: gracelaaaa@qq.com
+        run: |
+          python3 -c "
+          import smtplib, os, glob
+          from email.mime.text import MIMEText
+          from email.mime.multipart import MIMEMultipart
+          from datetime import datetime
+
+          # 读取最新生成的笔记
+          files = sorted(glob.glob('output/xhs-notes/*.md'))
+          if not files:
+              print('No notes generated')
+              exit(0)
+
+          today = datetime.utcnow().strftime('%Y-%m-%d')
+          content_parts = [f'📝 小红书笔记自动生成报告 ({today})\n', '=' * 40]
+
+          for f in files[-3:]:  # 最多发最近3篇
+              content_parts.append(f'\n--- {os.path.basename(f)} ---\n')
+              content_parts.append(open(f, encoding='utf-8').read())
+
+          content = '\n'.join(content_parts)
+
+          msg = MIMEMultipart()
+          msg['Subject'] = f'[XHS Auto] 每日笔记生成 {today}'
+          msg['From'] = os.environ['SMTP_USER']
+          msg['To'] = os.environ['TO_EMAIL']
+          msg.attach(MIMEText(content, 'plain', 'utf-8'))
+
+          try:
+              with smtplib.SMTP_SSL(os.environ['SMTP_HOST'], int(os.environ['SMTP_PORT'])) as server:
+                  server.login(os.environ['SMTP_USER'], os.environ['SMTP_PASS'])
+                  server.send_message(msg)
+              print(f'✅ 邮件已发送至 {os.environ[\"TO_EMAIL\"]}')
+          except Exception as e:
+              print(f'❌ 邮件发送失败: {e}')
+              raise
+          "
