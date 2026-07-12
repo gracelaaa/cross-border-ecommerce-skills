@@ -176,6 +176,12 @@ def main():
 
     print_stats(db)
 
+    # Fail the process when every requested collector failed. A zero exit code
+    # would let GitHub Actions export/push an unchanged or empty dataset while
+    # reporting a misleading successful run.
+    if results and fail_count == len(results):
+        raise SystemExit(1)
+
 
 if __name__ == "__main__":
     main()

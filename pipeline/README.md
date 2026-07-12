@@ -41,7 +41,8 @@ cross-border-ecommerce-skills/
         ├── google_trends.py
         ├── youtube.py
         ├── tiktok.py
-        ├── reddit.py
+        ├── reddit.py                 # Reddit via Apify Actor
+        ├── broad_reddit.py            # Broad Reddit search via Apify
         └── amz_dataset.py
 ```
 
@@ -73,20 +74,20 @@ python3 run.py --skip tiktok amz_dataset
 | `google_trends` | google_trends.py | Google Trends |
 | `youtube` | youtube.py | YouTube 搜索 |
 | `tiktok` | tiktok.py | TikTok（反爬限制，可能 0 条） |
-| `reddit` | reddit.py | Reddit（需 BrowserAct） |
+| `reddit` | reddit.py | Reddit 精准 subreddit（Apify） |
+| `reddit_broad` | broad_reddit.py | Reddit 宽网搜索（Apify） |
 | `amz_dataset` | amz_dataset.py | Amazon Reviews 2023 数据集 |
 
 ## Reddit 采集器额外要求
 
-Reddit 采集器使用 BrowserAct CLI 通过 Google `site:reddit.com` 搜索间接获取数据，需要：
+Reddit 采集器使用 Apify Reddit Scraper Actor：
 
-1. 安装 BrowserAct CLI 工具
-2. 在 `config.py` 中配置：
-   - `BROWSERACT_BIN`：BrowserAct 可执行文件路径
-   - `BROWSERACT_DATA_DIR`：BrowserAct 数据目录
-   - `BROWSERACT_BROWSER_ID`：已创建的浏览器实例 ID
+1. 设置 `APIFY_API_TOKEN` 环境变量
+2. 可选设置 `APIFY_REDDIT_ACTOR` 覆盖 Actor（默认 `automation-lab/reddit-scraper`）
+3. 精准采集按 subreddit 分次调用，并在调用间等待，降低 Reddit 限速影响
+4. 宽网采集使用 Reddit 搜索 URL，覆盖多个社区的需求信号
 
-如果不需要 Reddit 数据，可以用 `--skip reddit` 跳过。
+如果不需要 Reddit 数据，可以用 `--skip reddit --skip reddit_broad` 跳过。
 
 ## 数据库结构
 

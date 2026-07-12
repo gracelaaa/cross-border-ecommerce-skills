@@ -9,6 +9,12 @@ on:
 permissions:
   contents: write
 
+# Both Reddit workflows write the same data branch. Serialize them to avoid
+# lost updates when cron delivery is delayed or a run is started manually.
+concurrency:
+  group: reddit-data-branch
+  cancel-in-progress: false
+
 jobs:
   collect:
     runs-on: ubuntu-latest
@@ -86,6 +92,16 @@ jobs:
           db.row_factory = sqlite3.Row
           rows = db.execute('SELECT * FROM demand_signals').fetchall()
           data = [dict(r) for r in rows]
+          if not data:
+              raise RuntimeError('No signals available; refusing to overwrite data branch')
+          baseline = 0
+          try:
+              with open('/tmp/existing.json', encoding='utf-8') as f:
+                  baseline = len(json.load(f))
+          except Exception:
+              pass
+          if baseline and len(data) < baseline:
+              raise RuntimeError(f'Data regression: baseline={baseline}, exported={len(data)}')
           for row in data:
               for col in ['keywords', 'metadata']:
                   if row.get(col):
@@ -114,10 +130,20 @@ jobs:
           git merge origin/data --no-edit 2>/dev/null || true
           git add data/
           git commit -m "data: reddit_broad $(date -u +%Y-%m-%dT%H:%M:%SZ)" || echo "No changes"
+          pushed=false
           for i in 1 2 3; do
-            if git push origin data --force-with-lease; then break; fi
+            if git push origin data --force-with-lease; then
+              pushed=true
+              break
+            fi
             echo "Push retry $i..."
-            sleep 10
-            git fetch origin data
-            git merge origin/data --no-edit 2>/dev/null || true
+            if [ "$i" -lt 3 ]; then
+              sleep 10
+              git fetch origin data
+              git merge origin/data --no-edit
+            fi
           done
+          if [ "$pushed" != "true" ]; then
+            echo "ERROR: failed to push data after 3 attempts"
+            exit 1
+          fi

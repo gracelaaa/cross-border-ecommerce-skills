@@ -99,7 +99,7 @@ class BroadRedditCollector(BaseCollector):
                     self._log(f"    Attempt {attempt}: status={run.status}")
                 except Exception as e:
                     self._log(f"    Attempt {attempt} error: {e}")
-                    if attempt < 1:
+                    if attempt < 2:
                         time.sleep(20)
             
             if not run or run.status != "SUCCEEDED":
